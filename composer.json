@@ -1,0 +1,51 @@
+{
+  "name": "mirrorps/laravel-taler",
+  "description": "Laravel package for GNU Taler REST API integration",
+  "type": "library",
+  "license": "MIT",
+  "keywords": [
+    "laravel",
+    "taler",
+    "gnu-taler",
+    "payments",
+    "sdk"
+  ],
+  "require": {
+    "php": "^8.1",
+    "illuminate/support": "^10.0|^11.0",
+    "mirrorps/taler-php": "dev-main",
+    "psr/http-client": "^1.0"
+  },
+  "require-dev": {
+    "orchestra/testbench": "^8.0|^9.0",
+    "phpunit/phpunit": "^10.5",
+    "roave/security-advisories": "dev-latest"
+  },
+  "autoload": {
+    "psr-4": {
+      "Mirrorps\\LaravelTaler\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Mirrorps\\LaravelTaler\\Tests\\": "tests/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "aliases": {
+        "Taler": "Mirrorps\\LaravelTaler\\Facades\\Taler"
+      },
+      "providers": [
+        "Mirrorps\\LaravelTaler\\LaravelTalerServiceProvider"
+      ]
+    }
+  },
+  "scripts": {
+    "test": "@php vendor/bin/phpunit"
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}
+
+
