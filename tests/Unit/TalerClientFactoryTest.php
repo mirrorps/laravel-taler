@@ -2,6 +2,7 @@
 
 namespace Mirrorps\LaravelTaler\Tests\Unit;
 
+use InvalidArgumentException;
 use Mirrorps\LaravelTaler\Contracts\CreatesTalerClients;
 use Mirrorps\LaravelTaler\Tests\TestCase;
 use Psr\Http\Client\ClientInterface;
@@ -34,7 +35,7 @@ class TalerClientFactoryTest extends TestCase
         $this->assertFalse($options['wrapResponse']);
         $this->assertTrue($options['debugLoggingEnabled']);
         $this->assertArrayHasKey('logger', $options);
-        $this->assertArrayNotHasKey('httpClient', $options);
+        $this->assertArrayNotHasKey('client', $options);
     }
 
     public function test_it_passes_a_bound_psr18_http_client_to_the_sdk_options(): void
@@ -50,7 +51,21 @@ class TalerClientFactoryTest extends TestCase
 
         $options = $this->app->make(CreatesTalerClients::class)->options();
 
-        $this->assertArrayHasKey('httpClient', $options);
-        $this->assertSame($client, $options['httpClient']);
+        $this->assertArrayHasKey('client', $options);
+        $this->assertSame($client, $options['client']);
+    }
+
+    public function test_it_throws_a_clear_exception_when_base_url_is_missing(): void
+    {
+        config()->set('taler.base_url', null);
+
+        $factory = $this->app->make(CreatesTalerClients::class);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(
+            'Taler is not configured. Set `taler.base_url` or define the `TALER_BASE_URL` environment variable.'
+        );
+
+        $factory->make();
     }
 }

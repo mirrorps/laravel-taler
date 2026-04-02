@@ -6,6 +6,7 @@ use Illuminate\Contracts\Config\Repository;
 use Mirrorps\LaravelTaler\Contracts\CreatesTalerClients;
 use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
+use InvalidArgumentException;
 use Taler\Factory\Factory;
 use Taler\Taler as SdkTaler;
 
@@ -14,13 +15,21 @@ class TalerClientFactory implements CreatesTalerClients
     public function __construct(
         protected Repository $config,
         protected LoggerInterface $logger,
-        protected ?ClientInterface $httpClient = null,
+        protected ?ClientInterface $client = null,
     ) {
     }
 
     public function make(): SdkTaler
     {
-        return Factory::create($this->options());
+        $options = $this->options();
+
+        if (!isset($options['base_url']) || !is_string($options['base_url']) || $options['base_url'] === '') {
+            throw new InvalidArgumentException(
+                'Taler is not configured. Set `taler.base_url` or define the `TALER_BASE_URL` environment variable.'
+            );
+        }
+
+        return Factory::create($options);
     }
 
     public function options(): array
@@ -37,7 +46,7 @@ class TalerClientFactory implements CreatesTalerClients
             'wrapResponse' => $this->config->get('taler.wrap_response', true),
             'logger' => $this->logger,
             'debugLoggingEnabled' => $this->config->get('taler.debug_logging_enabled', false),
-            'httpClient' => $this->httpClient,
+            'client' => $this->client,
         ], static fn (mixed $value): bool => $value !== null);
     }
 }
