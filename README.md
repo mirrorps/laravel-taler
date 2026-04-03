@@ -64,8 +64,7 @@ Notes:
 
 ## Package Configuration
 
-You can configure the package entirely through `.env`.
-Publishing `config/taler.php` is optional, because the package already merges its default config and reads the Taler settings from environment variables.
+You can configure the package through `.env`.
 
 If you want to customize the config file inside your app, publish it with:
 
@@ -85,7 +84,7 @@ TALER_PASSWORD=merchant-password
 TALER_INSTANCE_ID=default
 TALER_SCOPE=readonly
 TALER_DURATION_US=3600000000
-TALER_DESCRIPTION="Backoffice session"
+TALER_DESCRIPTION="Backoffice session" //--- token description (optional) 
 TALER_WRAP_RESPONSE=true
 TALER_DEBUG_LOGGING_ENABLED=false
 ```
@@ -93,7 +92,7 @@ TALER_DEBUG_LOGGING_ENABLED=false
 Configuration notes:
 
 - `TALER_BASE_URL` is required.
-- Publishing `config/taler.php` is not required if the default package config and `.env` values are sufficient for your app.
+
 - If `TALER_TOKEN` is set, it takes precedence over username/password login.
 - If no token is provided, the package uses `TALER_USERNAME`, `TALER_PASSWORD`, and `TALER_INSTANCE_ID` to obtain a token.
 - `TALER_SCOPE` defaults to `readonly`.
@@ -211,6 +210,85 @@ If you want the resolved result immediately:
 $orders = Taler::orders()->getOrdersAsync(['limit' => 20])->wait();
 $order = Taler::orders()->getOrderAsync('order-123')->wait();
 ```
+
+### Bank Accounts API
+
+```php
+use Mirrorps\LaravelTaler\Facades\Taler;
+use Taler\Api\BankAccounts\Dto\AccountAddDetails;
+use Taler\Api\BankAccounts\Dto\AccountPatchDetails;
+use Taler\Api\BankAccounts\Dto\BasicAuthFacadeCredentials;
+use Taler\Api\BankAccounts\Dto\NoFacadeCredentials;
+```
+
+List all bank accounts:
+
+```php
+$accounts = Taler::bankAccounts()->getAccounts();
+```
+
+Fetch one bank account by `h_wire`:
+
+```php
+$account = Taler::bankAccounts()->getAccount($hWire);
+```
+
+Create a bank account:
+
+```php
+$response = Taler::bankAccounts()->createAccount(
+    new AccountAddDetails(
+        payto_uri: 'payto://iban/DE75512108001245126199?receiver-name=Sandbox',
+        credit_facade_url: 'https://bank.example.test/facade',
+        credit_facade_credentials: new BasicAuthFacadeCredentials(
+            username: 'facade-user',
+            password: 'facade-password',
+        ),
+    ),
+);
+```
+
+Update a bank account:
+
+```php
+Taler::bankAccounts()->updateAccount(
+    $hWire,
+    new AccountPatchDetails(
+        credit_facade_url: 'https://bank.example.test/facade/v2',
+        credit_facade_credentials: new BasicAuthFacadeCredentials(
+            username: 'facade-user',
+            password: 'new-secret',
+        ),
+    ),
+);
+```
+
+Remove a bank account:
+
+```php
+Taler::bankAccounts()->deleteAccount($hWire);
+```
+
+All bank-account methods can also run in async mode by appending `Async` to the method name.
+
+Example async calls:
+
+```php
+$promise = Taler::bankAccounts()->getAccountsAsync();
+$accounts = $promise->wait();
+```
+
+```php
+$promise = Taler::bankAccounts()->createAccountAsync(
+    new AccountAddDetails(
+        payto_uri: 'payto://iban/DE75512108001245126199?receiver-name=Sandbox',
+    ),
+);
+
+$response = $promise->wait();
+```
+
+
 
 ## Testing
 

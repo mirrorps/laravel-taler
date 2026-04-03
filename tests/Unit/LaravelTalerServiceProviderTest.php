@@ -2,6 +2,7 @@
 
 namespace Mirrorps\LaravelTaler\Tests\Unit;
 
+use Mirrorps\LaravelTaler\BankAccounts\BankAccountsManager;
 use Mirrorps\LaravelTaler\Contracts\CreatesTalerClients;
 use Mirrorps\LaravelTaler\Orders\OrdersManager;
 use Mirrorps\LaravelTaler\TalerClientFactory;
@@ -15,6 +16,7 @@ class LaravelTalerServiceProviderTest extends TestCase
         $this->assertInstanceOf(TalerClientFactory::class, $this->app->make(CreatesTalerClients::class));
         $this->assertInstanceOf(TalerManager::class, $this->app->make(TalerManager::class));
         $this->assertInstanceOf(TalerManager::class, $this->app->make('taler'));
+        $this->assertInstanceOf(BankAccountsManager::class, $this->app->make(BankAccountsManager::class));
         $this->assertInstanceOf(OrdersManager::class, $this->app->make(OrdersManager::class));
     }
 

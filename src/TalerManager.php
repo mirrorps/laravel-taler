@@ -2,6 +2,7 @@
 
 namespace Mirrorps\LaravelTaler;
 
+use Mirrorps\LaravelTaler\BankAccounts\BankAccountsManager;
 use Mirrorps\LaravelTaler\Contracts\CreatesTalerClients;
 use Mirrorps\LaravelTaler\Orders\OrdersManager;
 use Taler\Taler as SdkTaler;
@@ -9,6 +10,8 @@ use Taler\Taler as SdkTaler;
 class TalerManager
 {
     protected ?SdkTaler $client = null;
+
+    protected ?BankAccountsManager $bankAccounts = null;
 
     protected ?OrdersManager $orders = null;
 
@@ -26,6 +29,11 @@ class TalerManager
         return $this->orders ??= new OrdersManager($this->factory);
     }
 
+    public function bankAccounts(): BankAccountsManager
+    {
+        return $this->bankAccounts ??= new BankAccountsManager($this->factory);
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -37,6 +45,7 @@ class TalerManager
     public function forgetClient(): self
     {
         $this->client = null;
+        $this->bankAccounts = null;
         $this->orders = null;
 
         return $this;

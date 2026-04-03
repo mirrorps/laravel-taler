@@ -2,6 +2,7 @@
 
 namespace Mirrorps\LaravelTaler\Tests\Unit;
 
+use Mirrorps\LaravelTaler\BankAccounts\BankAccountsManager;
 use Mirrorps\LaravelTaler\Contracts\CreatesTalerClients;
 use Mirrorps\LaravelTaler\Orders\OrdersManager;
 use Mirrorps\LaravelTaler\TalerManager;
@@ -11,7 +12,7 @@ use Taler\Taler as SdkTaler;
 
 class TalerManagerTest extends TestCase
 {
-    public function test_it_builds_the_orders_manager_lazily(): void
+    public function test_it_builds_the_resource_managers_lazily(): void
     {
         $factory = new class implements CreatesTalerClients {
             public function make(): SdkTaler
@@ -27,8 +28,11 @@ class TalerManagerTest extends TestCase
 
         $manager = new TalerManager($factory);
 
+        $bankAccounts = $manager->bankAccounts();
         $orders = $manager->orders();
 
+        $this->assertInstanceOf(BankAccountsManager::class, $bankAccounts);
+        $this->assertSame($bankAccounts, $manager->bankAccounts());
         $this->assertInstanceOf(OrdersManager::class, $orders);
         $this->assertSame($orders, $manager->orders());
         $this->assertSame(['base_url' => 'https://merchant.example.test'], $manager->options());
