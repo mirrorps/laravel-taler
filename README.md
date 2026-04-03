@@ -125,6 +125,8 @@ After that:
 
 ## Usage
 
+### Orders API
+
 Fetch order history:
 
 ```php
@@ -145,6 +147,54 @@ use Taler\Api\Order\Dto\GetOrderRequest;
 
 $order = Taler::orders()->getOrder('order-123', new GetOrderRequest(
     token: 'claim-token',
+));
+```
+
+Create an order:
+
+```php
+use Mirrorps\LaravelTaler\Facades\Taler;
+use Taler\Api\Order\Dto\Amount;
+use Taler\Api\Order\Dto\OrderV0;
+use Taler\Api\Order\Dto\PostOrderRequest;
+
+$response = Taler::orders()->createOrder(new PostOrderRequest(
+    order: new OrderV0(
+        summary: 'Coffee beans',
+        amount: new Amount('EUR:12.50'),
+        order_id: 'order-123',
+    ),
+));
+```
+
+Refund an order:
+
+```php
+use Mirrorps\LaravelTaler\Facades\Taler;
+use Taler\Api\Order\Dto\RefundRequest;
+
+$refund = Taler::orders()->refundOrder('order-123', new RefundRequest(
+    refund: 'EUR:5.00',
+    reason: 'Customer requested a partial refund',
+));
+```
+
+Delete an order:
+
+```php
+use Mirrorps\LaravelTaler\Facades\Taler;
+
+Taler::orders()->deleteOrder('order-123');
+```
+
+Forget selected order fields:
+
+```php
+use Mirrorps\LaravelTaler\Facades\Taler;
+use Taler\Api\Order\Dto\ForgetRequest;
+
+Taler::orders()->forgetOrder('order-123', new ForgetRequest(
+    fields: ['$.delivery_location'],
 ));
 ```
 
