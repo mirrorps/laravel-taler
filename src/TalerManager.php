@@ -3,8 +3,10 @@
 namespace Mirrorps\LaravelTaler;
 
 use Mirrorps\LaravelTaler\BankAccounts\BankAccountsManager;
+use Mirrorps\LaravelTaler\Config\ConfigManager;
 use Mirrorps\LaravelTaler\Contracts\CreatesTalerClients;
 use Mirrorps\LaravelTaler\Orders\OrdersManager;
+use Mirrorps\LaravelTaler\TwoFactorAuth\TwoFactorAuthManager;
 use Taler\Taler as SdkTaler;
 
 class TalerManager
@@ -13,7 +15,11 @@ class TalerManager
 
     protected ?BankAccountsManager $bankAccounts = null;
 
+    protected ?ConfigManager $config = null;
+
     protected ?OrdersManager $orders = null;
+
+    protected ?TwoFactorAuthManager $twoFactorAuth = null;
 
     public function __construct(protected CreatesTalerClients $factory)
     {
@@ -34,6 +40,16 @@ class TalerManager
         return $this->bankAccounts ??= new BankAccountsManager($this->factory);
     }
 
+    public function config(): ConfigManager
+    {
+        return $this->config ??= new ConfigManager($this->factory);
+    }
+
+    public function twoFactorAuth(): TwoFactorAuthManager
+    {
+        return $this->twoFactorAuth ??= new TwoFactorAuthManager($this->factory);
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -46,7 +62,9 @@ class TalerManager
     {
         $this->client = null;
         $this->bankAccounts = null;
+        $this->config = null;
         $this->orders = null;
+        $this->twoFactorAuth = null;
 
         return $this;
     }

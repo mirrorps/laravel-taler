@@ -5,8 +5,10 @@ namespace Mirrorps\LaravelTaler;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
 use Mirrorps\LaravelTaler\BankAccounts\BankAccountsManager;
+use Mirrorps\LaravelTaler\Config\ConfigManager;
 use Mirrorps\LaravelTaler\Contracts\CreatesTalerClients;
 use Mirrorps\LaravelTaler\Orders\OrdersManager;
+use Mirrorps\LaravelTaler\TwoFactorAuth\TwoFactorAuthManager;
 use Psr\Http\Client\ClientInterface;
 
 class LaravelTalerServiceProvider extends ServiceProvider
@@ -35,6 +37,14 @@ class LaravelTalerServiceProvider extends ServiceProvider
 
         $this->app->bind(BankAccountsManager::class, function (Application $app): BankAccountsManager {
             return $app->make(TalerManager::class)->bankAccounts();
+        });
+
+        $this->app->bind(ConfigManager::class, function (Application $app): ConfigManager {
+            return $app->make(TalerManager::class)->config();
+        });
+
+        $this->app->bind(TwoFactorAuthManager::class, function (Application $app): TwoFactorAuthManager {
+            return $app->make(TalerManager::class)->twoFactorAuth();
         });
     }
 

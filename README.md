@@ -288,7 +288,81 @@ $promise = Taler::bankAccounts()->createAccountAsync(
 $response = $promise->wait();
 ```
 
+### Config API
 
+Fetch the merchant backend configuration:
+
+```php
+use Mirrorps\LaravelTaler\Facades\Taler;
+
+$config = Taler::config()->getConfig();
+```
+
+Pass request headers when needed:
+
+```php
+$config = Taler::config()->getConfig([
+    'X-Trace-Id' => 'merchant-config-check',
+]);
+```
+
+Async access is available too:
+
+```php
+$promise = Taler::config()->getConfigAsync();
+$config = $promise->wait();
+```
+
+### Two-factor authentication (TAN challenges)
+
+Request TAN transmission for a challenge:
+
+```php
+use Mirrorps\LaravelTaler\Facades\Taler;
+
+$info = Taler::twoFactorAuth()->requestChallenge(
+    instanceId: 'default',
+    challengeId: $challengeId,
+    requestBody: [],
+);
+```
+
+Confirm a challenge with the received TAN:
+
+```php
+use Taler\Api\TwoFactorAuth\Dto\MerchantChallengeSolveRequest;
+
+Taler::twoFactorAuth()->confirmChallenge(
+    instanceId: 'default',
+    challengeId: $challengeId,
+    requestBody: new MerchantChallengeSolveRequest(tan: $tan),
+);
+```
+
+Async variants:
+
+```php
+use Mirrorps\LaravelTaler\Facades\Taler;
+
+$promise = Taler::twoFactorAuth()->requestChallengeAsync(
+    instanceId: 'default',
+    challengeId: $challengeId,
+    requestBody: [],
+);
+$info = $promise->wait();
+```
+
+```php
+use Mirrorps\LaravelTaler\Facades\Taler;
+use Taler\Api\TwoFactorAuth\Dto\MerchantChallengeSolveRequest;
+
+$promise = Taler::twoFactorAuth()->confirmChallengeAsync(
+    instanceId: 'default',
+    challengeId: $challengeId,
+    requestBody: new MerchantChallengeSolveRequest(tan: $tan),
+);
+$promise->wait();
+```
 
 ## Testing
 
