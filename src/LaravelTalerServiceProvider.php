@@ -7,7 +7,9 @@ use Illuminate\Support\ServiceProvider;
 use Mirrorps\LaravelTaler\BankAccounts\BankAccountsManager;
 use Mirrorps\LaravelTaler\Config\ConfigManager;
 use Mirrorps\LaravelTaler\Contracts\CreatesTalerClients;
+use Mirrorps\LaravelTaler\OtpDevices\OtpDevicesManager;
 use Mirrorps\LaravelTaler\Orders\OrdersManager;
+use Mirrorps\LaravelTaler\Templates\TemplatesManager;
 use Mirrorps\LaravelTaler\TwoFactorAuth\TwoFactorAuthManager;
 use Psr\Http\Client\ClientInterface;
 
@@ -45,6 +47,14 @@ class LaravelTalerServiceProvider extends ServiceProvider
 
         $this->app->bind(TwoFactorAuthManager::class, function (Application $app): TwoFactorAuthManager {
             return $app->make(TalerManager::class)->twoFactorAuth();
+        });
+
+        $this->app->bind(OtpDevicesManager::class, function (Application $app): OtpDevicesManager {
+            return $app->make(TalerManager::class)->otpDevices();
+        });
+
+        $this->app->bind(TemplatesManager::class, function (Application $app): TemplatesManager {
+            return $app->make(TalerManager::class)->templates();
         });
     }
 

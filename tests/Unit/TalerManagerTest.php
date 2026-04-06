@@ -5,8 +5,10 @@ namespace Mirrorps\LaravelTaler\Tests\Unit;
 use Mirrorps\LaravelTaler\BankAccounts\BankAccountsManager;
 use Mirrorps\LaravelTaler\Config\ConfigManager;
 use Mirrorps\LaravelTaler\Contracts\CreatesTalerClients;
+use Mirrorps\LaravelTaler\OtpDevices\OtpDevicesManager;
 use Mirrorps\LaravelTaler\Orders\OrdersManager;
 use Mirrorps\LaravelTaler\TalerManager;
+use Mirrorps\LaravelTaler\Templates\TemplatesManager;
 use Mirrorps\LaravelTaler\TwoFactorAuth\TwoFactorAuthManager;
 use Mirrorps\LaravelTaler\Tests\TestCase;
 use RuntimeException;
@@ -33,6 +35,8 @@ class TalerManagerTest extends TestCase
         $bankAccounts = $manager->bankAccounts();
         $config = $manager->config();
         $orders = $manager->orders();
+        $otpDevices = $manager->otpDevices();
+        $templates = $manager->templates();
         $twoFactorAuth = $manager->twoFactorAuth();
 
         $this->assertInstanceOf(BankAccountsManager::class, $bankAccounts);
@@ -41,6 +45,10 @@ class TalerManagerTest extends TestCase
         $this->assertSame($config, $manager->config());
         $this->assertInstanceOf(OrdersManager::class, $orders);
         $this->assertSame($orders, $manager->orders());
+        $this->assertInstanceOf(OtpDevicesManager::class, $otpDevices);
+        $this->assertSame($otpDevices, $manager->otpDevices());
+        $this->assertInstanceOf(TemplatesManager::class, $templates);
+        $this->assertSame($templates, $manager->templates());
         $this->assertInstanceOf(TwoFactorAuthManager::class, $twoFactorAuth);
         $this->assertSame($twoFactorAuth, $manager->twoFactorAuth());
         $this->assertSame(['base_url' => 'https://merchant.example.test'], $manager->options());

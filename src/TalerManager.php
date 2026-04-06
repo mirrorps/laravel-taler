@@ -5,7 +5,9 @@ namespace Mirrorps\LaravelTaler;
 use Mirrorps\LaravelTaler\BankAccounts\BankAccountsManager;
 use Mirrorps\LaravelTaler\Config\ConfigManager;
 use Mirrorps\LaravelTaler\Contracts\CreatesTalerClients;
+use Mirrorps\LaravelTaler\OtpDevices\OtpDevicesManager;
 use Mirrorps\LaravelTaler\Orders\OrdersManager;
+use Mirrorps\LaravelTaler\Templates\TemplatesManager;
 use Mirrorps\LaravelTaler\TwoFactorAuth\TwoFactorAuthManager;
 use Taler\Taler as SdkTaler;
 
@@ -18,6 +20,10 @@ class TalerManager
     protected ?ConfigManager $config = null;
 
     protected ?OrdersManager $orders = null;
+
+    protected ?OtpDevicesManager $otpDevices = null;
+
+    protected ?TemplatesManager $templates = null;
 
     protected ?TwoFactorAuthManager $twoFactorAuth = null;
 
@@ -50,6 +56,16 @@ class TalerManager
         return $this->twoFactorAuth ??= new TwoFactorAuthManager($this->factory);
     }
 
+    public function otpDevices(): OtpDevicesManager
+    {
+        return $this->otpDevices ??= new OtpDevicesManager($this->factory);
+    }
+
+    public function templates(): TemplatesManager
+    {
+        return $this->templates ??= new TemplatesManager($this->factory);
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -64,6 +80,8 @@ class TalerManager
         $this->bankAccounts = null;
         $this->config = null;
         $this->orders = null;
+        $this->otpDevices = null;
+        $this->templates = null;
         $this->twoFactorAuth = null;
 
         return $this;

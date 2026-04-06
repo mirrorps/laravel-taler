@@ -364,6 +364,143 @@ $promise = Taler::twoFactorAuth()->confirmChallengeAsync(
 $promise->wait();
 ```
 
+### OTP Devices API
+
+```php
+use Mirrorps\LaravelTaler\Facades\Taler;
+use Taler\Api\OtpDevices\Dto\GetOtpDeviceRequest;
+use Taler\Api\OtpDevices\Dto\OtpDeviceAddDetails;
+use Taler\Api\OtpDevices\Dto\OtpDevicePatchDetails;
+```
+
+List all OTP devices:
+
+```php
+$devices = Taler::otpDevices()->getOtpDevices();
+```
+
+Fetch one OTP device:
+
+```php
+$device = Taler::otpDevices()->getOtpDevice('pos-device-1');
+```
+
+Fetch one OTP device with optional query parameters:
+
+```php
+$device = Taler::otpDevices()->getOtpDevice(
+    'pos-device-1',
+    new GetOtpDeviceRequest(
+        faketime: 1700000000,
+        price: 'EUR:1.00',
+    ),
+);
+```
+
+Create an OTP device:
+
+```php
+Taler::otpDevices()->createOtpDevice(new OtpDeviceAddDetails(
+    otp_device_id: 'pos-device-1',
+    otp_device_description: 'Counter POS',
+    otp_key: 'BASE32SECRET',
+    otp_algorithm: 1,
+));
+```
+
+Update an OTP device:
+
+```php
+Taler::otpDevices()->updateOtpDevice(
+    'pos-device-1',
+    new OtpDevicePatchDetails(
+        otp_device_description: 'Counter POS (v2)',
+    ),
+);
+```
+
+Delete an OTP device:
+
+```php
+Taler::otpDevices()->deleteOtpDevice('pos-device-1');
+```
+
+All OTP-device methods also support async variants by appending `Async`.
+
+```php
+$promise = Taler::otpDevices()->getOtpDevicesAsync();
+$devices = $promise->wait();
+```
+
+### Templates API
+
+```php
+use Mirrorps\LaravelTaler\Facades\Taler;
+use Taler\Api\Dto\RelativeTime;
+use Taler\Api\Templates\Dto\TemplateAddDetails;
+use Taler\Api\Templates\Dto\TemplateContractDetails;
+use Taler\Api\Templates\Dto\TemplatePatchDetails;
+```
+
+List all templates:
+
+```php
+$templates = Taler::templates()->getTemplates();
+```
+
+Fetch one template by id:
+
+```php
+$template = Taler::templates()->getTemplate('coffee-template');
+```
+
+Create a template:
+
+```php
+Taler::templates()->createTemplate(new TemplateAddDetails(
+    template_id: 'coffee-template',
+    template_description: 'Coffee checkout defaults',
+    template_contract: new TemplateContractDetails(
+        minimum_age: 0,
+        pay_duration: new RelativeTime(d_us: 3600000000),
+        summary: 'Coffee beans',
+        currency: 'EUR',
+        amount: 'EUR:12.50',
+    ),
+));
+```
+
+Update a template:
+
+```php
+Taler::templates()->updateTemplate(
+    'coffee-template',
+    new TemplatePatchDetails(
+        template_description: 'Coffee checkout defaults (v2)',
+        template_contract: new TemplateContractDetails(
+            minimum_age: 0,
+            pay_duration: new RelativeTime(d_us: 3600000000),
+            summary: 'Coffee beans premium',
+            currency: 'EUR',
+            amount: 'EUR:14.00',
+        ),
+    ),
+);
+```
+
+Delete a template:
+
+```php
+Taler::templates()->deleteTemplate('coffee-template');
+```
+
+All template methods also support async variants by appending `Async`.
+
+```php
+$promise = Taler::templates()->getTemplatesAsync();
+$templates = $promise->wait();
+```
+
 ## Testing
 
 ```bash
