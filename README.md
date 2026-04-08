@@ -211,6 +211,124 @@ $orders = Taler::orders()->getOrdersAsync(['limit' => 20])->wait();
 $order = Taler::orders()->getOrderAsync('order-123')->wait();
 ```
 
+### Inventory API
+
+```php
+use Mirrorps\LaravelTaler\Facades\Taler;
+use Taler\Api\Dto\RelativeTime;
+use Taler\Api\Inventory\Dto\CategoryCreateRequest;
+use Taler\Api\Inventory\Dto\GetProductsRequest;
+use Taler\Api\Inventory\Dto\LockRequest;
+use Taler\Api\Inventory\Dto\ProductAddDetail;
+use Taler\Api\Inventory\Dto\ProductPatchDetail;
+```
+
+List all inventory categories:
+
+```php
+$categories = Taler::inventory()->getCategories();
+```
+
+Fetch one category and its products:
+
+```php
+$category = Taler::inventory()->getCategory(1);
+```
+
+Create a category:
+
+```php
+$created = Taler::inventory()->createCategory(new CategoryCreateRequest(
+    name: 'Coffee',
+    name_i18n: ['de' => 'Kaffee'],
+));
+```
+
+Update a category:
+
+```php
+Taler::inventory()->updateCategory(1, new CategoryCreateRequest(
+    name: 'Coffee Beans',
+));
+```
+
+Delete a category:
+
+```php
+Taler::inventory()->deleteCategory(1);
+```
+
+List products:
+
+```php
+$products = Taler::inventory()->getProducts(new GetProductsRequest(
+    limit: 20,
+));
+```
+
+Fetch one product:
+
+```php
+$product = Taler::inventory()->getProduct('coffee-1kg');
+```
+
+Create a product:
+
+```php
+Taler::inventory()->createProduct(new ProductAddDetail(
+    product_id: 'coffee-1kg',
+    product_name: 'Coffee Beans 1kg',
+    description: 'Roasted arabica beans',
+    unit: 'bag',
+    price: 'EUR:12.50',
+    total_stock: 50,
+    categories: [1],
+));
+```
+
+Update a product:
+
+```php
+Taler::inventory()->updateProduct('coffee-1kg', new ProductPatchDetail(
+    product_name: 'Coffee Beans 1kg',
+    description: 'Roasted arabica beans',
+    unit: 'bag',
+    price: 'EUR:13.00',
+    total_stock: 45,
+    total_lost: 1,
+    categories: [1],
+));
+```
+
+Delete a product:
+
+```php
+Taler::inventory()->deleteProduct('coffee-1kg');
+```
+
+Fetch POS inventory details:
+
+```php
+$pos = Taler::inventory()->getPos();
+```
+
+Lock inventory for a frontend session:
+
+```php
+Taler::inventory()->lockProduct('coffee-1kg', new LockRequest(
+    lock_uuid: '550e8400-e29b-41d4-a716-446655440000',
+    duration: new RelativeTime(d_us: 30000000),
+    quantity: 2,
+));
+```
+
+All inventory methods also support async variants by appending `Async`.
+
+```php
+$promise = Taler::inventory()->getProductsAsync(new GetProductsRequest(limit: 20));
+$products = $promise->wait();
+```
+
 ### Bank Accounts API
 
 ```php
@@ -499,6 +617,58 @@ All template methods also support async variants by appending `Async`.
 ```php
 $promise = Taler::templates()->getTemplatesAsync();
 $templates = $promise->wait();
+```
+
+### Donau charity API
+
+Manage linked Donau charity instances for the current merchant instance (requires the merchant backend to support Donau; see `have_donau` in the config/version response).
+
+```php
+use Mirrorps\LaravelTaler\Facades\Taler;
+use Taler\Api\DonauCharity\Dto\PostDonauRequest;
+```
+
+List linked charity instances:
+
+```php
+$response = Taler::donauCharity()->getInstances();
+```
+
+Link a charity (returns `null` on success with HTTP 204, or a `ChallengeResponse` when two-factor authentication is required with HTTP 202):
+
+```php
+$challenge = Taler::donauCharity()->createDonauCharity(new PostDonauRequest(
+    donau_url: 'https://donau.example',
+    charity_id: 7,
+));
+```
+
+Unlink a charity by its Donau instance serial:
+
+```php
+Taler::donauCharity()->deleteDonauCharityBySerial(321);
+```
+
+Async variants append `Async` to the method name:
+
+```php
+$promise = Taler::donauCharity()->getInstancesAsync();
+$instances = $promise->wait();
+```
+
+```php
+use Taler\Api\DonauCharity\Dto\PostDonauRequest;
+
+$promise = Taler::donauCharity()->createDonauCharityAsync(new PostDonauRequest(
+    donau_url: 'https://donau.example',
+    charity_id: 7,
+));
+$result = $promise->wait();
+```
+
+```php
+$promise = Taler::donauCharity()->deleteDonauCharityBySerialAsync(321);
+$promise->wait();
 ```
 
 ## Testing

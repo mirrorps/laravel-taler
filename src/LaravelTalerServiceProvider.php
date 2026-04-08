@@ -7,10 +7,13 @@ use Illuminate\Support\ServiceProvider;
 use Mirrorps\LaravelTaler\BankAccounts\BankAccountsManager;
 use Mirrorps\LaravelTaler\Config\ConfigManager;
 use Mirrorps\LaravelTaler\Contracts\CreatesTalerClients;
+use Mirrorps\LaravelTaler\DonauCharity\DonauCharityManager;
+use Mirrorps\LaravelTaler\Inventory\InventoryManager;
 use Mirrorps\LaravelTaler\OtpDevices\OtpDevicesManager;
 use Mirrorps\LaravelTaler\Orders\OrdersManager;
 use Mirrorps\LaravelTaler\Templates\TemplatesManager;
 use Mirrorps\LaravelTaler\TwoFactorAuth\TwoFactorAuthManager;
+use Mirrorps\LaravelTaler\Wallet\WalletManager;
 use Psr\Http\Client\ClientInterface;
 
 class LaravelTalerServiceProvider extends ServiceProvider
@@ -45,6 +48,10 @@ class LaravelTalerServiceProvider extends ServiceProvider
             return $app->make(TalerManager::class)->config();
         });
 
+        $this->app->bind(InventoryManager::class, function (Application $app): InventoryManager {
+            return $app->make(TalerManager::class)->inventory();
+        });
+
         $this->app->bind(TwoFactorAuthManager::class, function (Application $app): TwoFactorAuthManager {
             return $app->make(TalerManager::class)->twoFactorAuth();
         });
@@ -55,6 +62,14 @@ class LaravelTalerServiceProvider extends ServiceProvider
 
         $this->app->bind(TemplatesManager::class, function (Application $app): TemplatesManager {
             return $app->make(TalerManager::class)->templates();
+        });
+
+        $this->app->bind(WalletManager::class, function (Application $app): WalletManager {
+            return $app->make(TalerManager::class)->wallet();
+        });
+
+        $this->app->bind(DonauCharityManager::class, function (Application $app): DonauCharityManager {
+            return $app->make(TalerManager::class)->donauCharity();
         });
     }
 
