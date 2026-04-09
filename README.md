@@ -211,7 +211,137 @@ $orders = Taler::orders()->getOrdersAsync(['limit' => 20])->wait();
 $order = Taler::orders()->getOrderAsync('order-123')->wait();
 ```
 
-### Inventory API
+### Instance Management API
+
+```php
+use Mirrorps\LaravelTaler\Facades\Taler;
+use Taler\Api\Dto\RelativeTime;
+use Taler\Api\Instance\Dto\GetAccessTokensRequest;
+use Taler\Api\Instance\Dto\GetKycStatusRequest;
+use Taler\Api\Instance\Dto\GetMerchantStatisticsAmountRequest;
+use Taler\Api\Instance\Dto\GetMerchantStatisticsCounterRequest;
+use Taler\Api\Instance\Dto\InstanceAuthConfigToken;
+use Taler\Api\Instance\Dto\InstanceConfigurationMessage;
+use Taler\Api\Instance\Dto\InstanceReconfigurationMessage;
+use Taler\Api\Instance\Dto\LoginTokenRequest;
+```
+
+List all instances (admin API):
+
+```php
+$instances = Taler::instance()->getInstances();
+```
+
+Fetch one instance:
+
+```php
+$instance = Taler::instance()->getInstance('default');
+```
+
+Create an instance:
+
+```php
+Taler::instance()->createInstance(new InstanceConfigurationMessage(
+    id: 'coffee-shop',
+    name: 'Coffee Shop',
+    auth: new InstanceAuthConfigToken(password: 'super-secret'),
+    address: new \Taler\Api\Dto\Location(country: 'DE', town: 'Berlin'),
+    jurisdiction: new \Taler\Api\Dto\Location(country: 'DE'),
+    use_stefan: false,
+    default_wire_transfer_delay: new RelativeTime(d_us: 0),
+    default_pay_delay: new RelativeTime(d_us: 0),
+));
+```
+
+Update an instance:
+
+```php
+Taler::instance()->updateInstance('coffee-shop', new InstanceReconfigurationMessage(
+    name: 'Coffee Shop Berlin',
+    address: new \Taler\Api\Dto\Location(country: 'DE', town: 'Berlin'),
+    jurisdiction: new \Taler\Api\Dto\Location(country: 'DE'),
+    use_stefan: false,
+    default_wire_transfer_delay: new RelativeTime(d_us: 0),
+    default_pay_delay: new RelativeTime(d_us: 0),
+));
+```
+
+Update instance authentication or trigger forgot-password:
+
+```php
+$challenge = Taler::instance()->updateAuth(
+    'coffee-shop',
+    new InstanceAuthConfigToken(password: 'new-secret'),
+);
+
+$challenge = Taler::instance()->forgotPassword(
+    'coffee-shop',
+    new InstanceAuthConfigToken(password: 'reset-secret'),
+);
+```
+
+Retrieve an access token for an instance:
+
+```php
+$token = Taler::instance()->getAccessToken('coffee-shop', new LoginTokenRequest(
+    scope: 'readonly',
+    duration: new RelativeTime(d_us: 3600000000),
+    description: 'Backoffice session',
+));
+```
+
+List or revoke issued access tokens:
+
+```php
+$tokens = Taler::instance()->getAccessTokens(
+    'coffee-shop',
+    new GetAccessTokensRequest(limit: 20),
+);
+
+Taler::instance()->deleteAccessToken('coffee-shop');
+Taler::instance()->deleteAccessTokenBySerial('coffee-shop', 42);
+```
+
+Check KYC status:
+
+```php
+$kycStatus = Taler::instance()->getKycStatus(
+    'coffee-shop',
+    new GetKycStatusRequest(lpt: 1, timeout_ms: 5000),
+);
+```
+
+Read merchant statistics:
+
+```php
+$amountStats = Taler::instance()->getMerchantStatisticsAmount(
+    'coffee-shop',
+    'revenue',
+    new GetMerchantStatisticsAmountRequest(by: 'ANY'),
+);
+
+$counterStats = Taler::instance()->getMerchantStatisticsCounter(
+    'coffee-shop',
+    'orders',
+    new GetMerchantStatisticsCounterRequest(by: 'BUCKET'),
+);
+```
+
+Delete or purge an instance:
+
+```php
+$challenge = Taler::instance()->deleteInstance('coffee-shop');
+$challenge = Taler::instance()->deleteInstance('coffee-shop', purge: true);
+```
+
+All instance methods also support async variants by appending `Async`.
+
+```php
+$promise = Taler::instance()->getInstancesAsync();
+$instances = $promise->wait();
+```
+
+### Inventory Management API
 
 ```php
 use Mirrorps\LaravelTaler\Facades\Taler;

@@ -6,6 +6,7 @@ use Mirrorps\LaravelTaler\BankAccounts\BankAccountsManager;
 use Mirrorps\LaravelTaler\Config\ConfigManager;
 use Mirrorps\LaravelTaler\Contracts\CreatesTalerClients;
 use Mirrorps\LaravelTaler\DonauCharity\DonauCharityManager;
+use Mirrorps\LaravelTaler\Instance\InstanceManager;
 use Mirrorps\LaravelTaler\Inventory\InventoryManager;
 use Mirrorps\LaravelTaler\OtpDevices\OtpDevicesManager;
 use Mirrorps\LaravelTaler\Orders\OrdersManager;
@@ -23,6 +24,8 @@ class TalerManager
     protected ?DonauCharityManager $donauCharity = null;
 
     protected ?ConfigManager $config = null;
+
+    protected ?InstanceManager $instance = null;
 
     protected ?InventoryManager $inventory = null;
 
@@ -65,6 +68,11 @@ class TalerManager
         return $this->config ??= new ConfigManager($this->factory);
     }
 
+    public function instance(): InstanceManager
+    {
+        return $this->instance ??= new InstanceManager($this->factory);
+    }
+
     public function inventory(): InventoryManager
     {
         return $this->inventory ??= new InventoryManager($this->factory);
@@ -104,6 +112,7 @@ class TalerManager
         $this->bankAccounts = null;
         $this->donauCharity = null;
         $this->config = null;
+        $this->instance = null;
         $this->inventory = null;
         $this->orders = null;
         $this->otpDevices = null;

@@ -8,6 +8,7 @@ use Mirrorps\LaravelTaler\BankAccounts\BankAccountsManager;
 use Mirrorps\LaravelTaler\Config\ConfigManager;
 use Mirrorps\LaravelTaler\Contracts\CreatesTalerClients;
 use Mirrorps\LaravelTaler\DonauCharity\DonauCharityManager;
+use Mirrorps\LaravelTaler\Instance\InstanceManager;
 use Mirrorps\LaravelTaler\Inventory\InventoryManager;
 use Mirrorps\LaravelTaler\OtpDevices\OtpDevicesManager;
 use Mirrorps\LaravelTaler\Orders\OrdersManager;
@@ -46,6 +47,10 @@ class LaravelTalerServiceProvider extends ServiceProvider
 
         $this->app->bind(ConfigManager::class, function (Application $app): ConfigManager {
             return $app->make(TalerManager::class)->config();
+        });
+
+        $this->app->bind(InstanceManager::class, function (Application $app): InstanceManager {
+            return $app->make(TalerManager::class)->instance();
         });
 
         $this->app->bind(InventoryManager::class, function (Application $app): InventoryManager {

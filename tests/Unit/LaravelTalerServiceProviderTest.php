@@ -6,6 +6,7 @@ use Mirrorps\LaravelTaler\BankAccounts\BankAccountsManager;
 use Mirrorps\LaravelTaler\Config\ConfigManager;
 use Mirrorps\LaravelTaler\Contracts\CreatesTalerClients;
 use Mirrorps\LaravelTaler\DonauCharity\DonauCharityManager;
+use Mirrorps\LaravelTaler\Instance\InstanceManager;
 use Mirrorps\LaravelTaler\Inventory\InventoryManager;
 use Mirrorps\LaravelTaler\OtpDevices\OtpDevicesManager;
 use Mirrorps\LaravelTaler\Orders\OrdersManager;
@@ -25,6 +26,7 @@ class LaravelTalerServiceProviderTest extends TestCase
         $this->assertInstanceOf(TalerManager::class, $this->app->make('taler'));
         $this->assertInstanceOf(BankAccountsManager::class, $this->app->make(BankAccountsManager::class));
         $this->assertInstanceOf(ConfigManager::class, $this->app->make(ConfigManager::class));
+        $this->assertInstanceOf(InstanceManager::class, $this->app->make(InstanceManager::class));
         $this->assertInstanceOf(InventoryManager::class, $this->app->make(InventoryManager::class));
         $this->assertInstanceOf(OrdersManager::class, $this->app->make(OrdersManager::class));
         $this->assertInstanceOf(TwoFactorAuthManager::class, $this->app->make(TwoFactorAuthManager::class));

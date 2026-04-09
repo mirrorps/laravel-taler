@@ -6,6 +6,7 @@ use Mirrorps\LaravelTaler\BankAccounts\BankAccountsManager;
 use Mirrorps\LaravelTaler\Config\ConfigManager;
 use Mirrorps\LaravelTaler\Contracts\CreatesTalerClients;
 use Mirrorps\LaravelTaler\DonauCharity\DonauCharityManager;
+use Mirrorps\LaravelTaler\Instance\InstanceManager;
 use Mirrorps\LaravelTaler\Inventory\InventoryManager;
 use Mirrorps\LaravelTaler\OtpDevices\OtpDevicesManager;
 use Mirrorps\LaravelTaler\Orders\OrdersManager;
@@ -38,6 +39,7 @@ class TalerManagerTest extends TestCase
         $bankAccounts = $manager->bankAccounts();
         $donauCharity = $manager->donauCharity();
         $config = $manager->config();
+        $instance = $manager->instance();
         $inventory = $manager->inventory();
         $orders = $manager->orders();
         $otpDevices = $manager->otpDevices();
@@ -51,6 +53,8 @@ class TalerManagerTest extends TestCase
         $this->assertSame($donauCharity, $manager->donauCharity());
         $this->assertInstanceOf(ConfigManager::class, $config);
         $this->assertSame($config, $manager->config());
+        $this->assertInstanceOf(InstanceManager::class, $instance);
+        $this->assertSame($instance, $manager->instance());
         $this->assertInstanceOf(InventoryManager::class, $inventory);
         $this->assertSame($inventory, $manager->inventory());
         $this->assertInstanceOf(OrdersManager::class, $orders);
