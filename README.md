@@ -806,3 +806,13 @@ $promise->wait();
 ```bash
 composer test
 ```
+
+## Symfony Sandbox Verification Commands
+
+If you also use the Symfony sandbox app to validate the shared `mirrorps/taler-php` integration in a real environment, these commands are useful smoke tests:
+
+```bash
+php bin/console taler:config:get
+php bin/console taler:orders:list --limit=5
+php bin/console taler:instance:list
+```
