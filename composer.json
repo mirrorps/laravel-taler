@@ -13,7 +13,7 @@
   "require": {
     "php": "^8.1",
     "illuminate/support": "^10.0|^11.0",
-    "mirrorps/taler-php": "dev-main",
+    "mirrorps/taler-php": "1.2.1",
     "psr/http-client": "^1.0"
   },
   "require-dev": {
@@ -44,7 +44,7 @@
   "scripts": {
     "test": "@php vendor/bin/phpunit"
   },
-  "minimum-stability": "dev",
+  "minimum-stability": "stable",
   "prefer-stable": true
 }
 

@@ -55,6 +55,17 @@ class TalerClientFactoryTest extends TestCase
         $this->assertSame($client, $options['client']);
     }
 
+    public function test_it_defaults_debug_logging_to_false(): void
+    {
+        config()->set('taler.base_url', 'https://merchant.example.test/instances/demo');
+        config()->set('taler.debug_logging_enabled', false);
+
+        $options = $this->app->make(CreatesTalerClients::class)->options();
+
+        $this->assertArrayHasKey('debugLoggingEnabled', $options);
+        $this->assertFalse($options['debugLoggingEnabled']);
+    }
+
     public function test_it_throws_a_clear_exception_when_base_url_is_missing(): void
     {
         config()->set('taler.base_url', null);

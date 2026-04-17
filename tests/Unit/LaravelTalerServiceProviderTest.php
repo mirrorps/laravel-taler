@@ -40,6 +40,7 @@ class LaravelTalerServiceProviderTest extends TestCase
     {
         $this->assertSame('readonly', config('taler.scope'));
         $this->assertTrue(config('taler.wrap_response'));
+        $this->assertFalse(config('taler.debug_logging_enabled'));
         $this->assertNull(config('taler.token'));
         $this->assertNull(config('taler.username'));
     }
