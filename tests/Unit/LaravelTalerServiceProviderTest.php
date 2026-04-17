@@ -8,6 +8,7 @@ use Mirrorps\LaravelTaler\Contracts\CreatesTalerClients;
 use Mirrorps\LaravelTaler\DonauCharity\DonauCharityManager;
 use Mirrorps\LaravelTaler\Instance\InstanceManager;
 use Mirrorps\LaravelTaler\Inventory\InventoryManager;
+use Mirrorps\LaravelTaler\Logging\LogChannelResolver;
 use Mirrorps\LaravelTaler\OtpDevices\OtpDevicesManager;
 use Mirrorps\LaravelTaler\Orders\OrdersManager;
 use Mirrorps\LaravelTaler\TalerClientFactory;
@@ -34,6 +35,15 @@ class LaravelTalerServiceProviderTest extends TestCase
         $this->assertInstanceOf(TemplatesManager::class, $this->app->make(TemplatesManager::class));
         $this->assertInstanceOf(WalletManager::class, $this->app->make(WalletManager::class));
         $this->assertInstanceOf(DonauCharityManager::class, $this->app->make(DonauCharityManager::class));
+        $this->assertInstanceOf(LogChannelResolver::class, $this->app->make(LogChannelResolver::class));
+    }
+
+    public function test_it_binds_the_log_channel_resolver_as_a_singleton(): void
+    {
+        $first = $this->app->make(LogChannelResolver::class);
+        $second = $this->app->make(LogChannelResolver::class);
+
+        $this->assertSame($first, $second);
     }
 
     public function test_it_merges_the_package_configuration(): void
@@ -43,5 +53,7 @@ class LaravelTalerServiceProviderTest extends TestCase
         $this->assertFalse(config('taler.debug_logging_enabled'));
         $this->assertNull(config('taler.token'));
         $this->assertNull(config('taler.username'));
+        $this->assertTrue(config('taler.logging_enabled'));
+        $this->assertNull(config('taler.log_channel'));
     }
 }

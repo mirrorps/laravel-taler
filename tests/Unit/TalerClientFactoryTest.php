@@ -2,12 +2,14 @@
 
 namespace Mirrorps\LaravelTaler\Tests\Unit;
 
+use Illuminate\Log\LogManager;
 use InvalidArgumentException;
 use Mirrorps\LaravelTaler\Contracts\CreatesTalerClients;
 use Mirrorps\LaravelTaler\Tests\TestCase;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Log\NullLogger;
 
 class TalerClientFactoryTest extends TestCase
 {
@@ -64,6 +66,49 @@ class TalerClientFactoryTest extends TestCase
 
         $this->assertArrayHasKey('debugLoggingEnabled', $options);
         $this->assertFalse($options['debugLoggingEnabled']);
+    }
+
+    public function test_it_uses_the_default_log_channel_when_none_is_configured(): void
+    {
+        config()->set('taler.base_url', 'https://merchant.example.test/instances/demo');
+        config()->set('taler.log_channel', null);
+
+        $options = $this->app->make(CreatesTalerClients::class)->options();
+
+        /** @var LogManager $logManager */
+        $logManager = $this->app->make('log');
+        $this->assertArrayHasKey('logger', $options);
+        $this->assertSame($logManager->channel(), $options['logger']);
+    }
+
+    public function test_it_uses_the_configured_log_channel(): void
+    {
+        config()->set('logging.channels.taler', [
+            'driver' => 'single',
+            'path' => storage_path('logs/taler.log'),
+            'level' => 'debug',
+        ]);
+        config()->set('taler.base_url', 'https://merchant.example.test/instances/demo');
+        config()->set('taler.log_channel', 'taler');
+
+        $options = $this->app->make(CreatesTalerClients::class)->options();
+
+        /** @var LogManager $logManager */
+        $logManager = $this->app->make('log');
+        $this->assertArrayHasKey('logger', $options);
+        $this->assertSame($logManager->channel('taler'), $options['logger']);
+    }
+
+    public function test_it_silences_sdk_logging_when_logging_is_disabled(): void
+    {
+        config()->set('taler.base_url', 'https://merchant.example.test/instances/demo');
+        config()->set('taler.logging_enabled', false);
+        config()->set('taler.log_channel', 'taler');
+
+        $options = $this->app->make(CreatesTalerClients::class)->options();
+
+        $this->assertArrayHasKey('logger', $options);
+        $this->assertInstanceOf(NullLogger::class, $options['logger']);
     }
 
     public function test_it_throws_a_clear_exception_when_base_url_is_missing(): void

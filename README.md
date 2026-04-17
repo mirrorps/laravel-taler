@@ -86,6 +86,8 @@ TALER_SCOPE=readonly
 TALER_DURATION_US=3600000000
 TALER_DESCRIPTION="Backoffice session" //--- token description (optional) 
 TALER_WRAP_RESPONSE=true
+TALER_LOGGING_ENABLED=true
+TALER_LOG_CHANNEL=
 TALER_DEBUG_LOGGING_ENABLED=false
 ```
 
@@ -97,7 +99,49 @@ Configuration notes:
 - If no token is provided, the package uses `TALER_USERNAME`, `TALER_PASSWORD`, and `TALER_INSTANCE_ID` to obtain a token.
 - `TALER_SCOPE` defaults to `readonly`.
 - `TALER_WRAP_RESPONSE` controls whether the underlying SDK wraps responses into DTOs when available.
-- `TALER_DEBUG_LOGGING_ENABLED` enables SDK request/response logging through Laravel's logger.
+- `TALER_LOGGING_ENABLED` is an explicit on/off switch for SDK logging. When set to `false`, a PSR-3 `NullLogger` is plugged into the SDK and Laravel's logging stack is bypassed entirely.
+- `TALER_LOG_CHANNEL` selects which Laravel log channel receives SDK log records when logging is enabled. Leave empty to use your application's default channel, or set it to any channel defined in `config/logging.php`.
+- `TALER_DEBUG_LOGGING_ENABLED` toggles the SDK's own DEBUG-level request/response logging. It is independent from `TALER_LOGGING_ENABLED`; error-level failure logs from the SDK are always emitted as long as logging is enabled.
+
+### Logging
+
+The underlying `mirrorps/taler-php` SDK accepts any PSR-3 `LoggerInterface` and owns all logging policy (log levels, redaction of sensitive headers/bodies, request/response previews). This package is only responsible for wiring Laravel's logging stack into the SDK, so you configure logging the same way you configure it for the rest of your Laravel app.
+
+Three typical setups:
+
+1. **Default channel (no extra configuration).** Leave `TALER_LOG_CHANNEL` empty and Taler logs flow into your default channel (`config('logging.default')`).
+
+2. **Dedicated channel.** Declare a channel in `config/logging.php` and point `TALER_LOG_CHANNEL` at it:
+
+   ```php
+   // config/logging.php
+   'channels' => [
+       // ...
+       'taler' => [
+           'driver' => 'daily',
+           'path' => storage_path('logs/taler.log'),
+           'level' => env('TALER_LOG_LEVEL', 'debug'),
+           'days' => 14,
+       ],
+   ],
+   ```
+
+   ```dotenv
+   TALER_LOG_CHANNEL=taler
+   TALER_DEBUG_LOGGING_ENABLED=true
+   ```
+
+3. **Silence SDK logging.** Set `TALER_LOGGING_ENABLED=false` to plug a `NullLogger` into the SDK.
+
+Logging is resolved at the config layer: the active channel is locked in when the SDK client is first built (once per container lifetime, because the factory is bound as a singleton). If you change the logging configuration at runtime, forget the bindings before resolving them again:
+
+```php
+app()->forgetInstance(\Mirrorps\LaravelTaler\TalerManager::class);
+app()->forgetInstance(\Mirrorps\LaravelTaler\Contracts\CreatesTalerClients::class);
+app()->forgetInstance(\Mirrorps\LaravelTaler\Logging\LogChannelResolver::class);
+```
+
+For full runtime control (for example in tests), bind a custom PSR-3 logger by overriding `CreatesTalerClients` in a service provider or via `$app->bind(...)`.
 
 If you cache config in your app, clear it after changing `.env`:
 

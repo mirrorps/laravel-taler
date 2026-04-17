@@ -3,6 +3,7 @@
 namespace Mirrorps\LaravelTaler;
 
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Log\LogManager;
 use Illuminate\Support\ServiceProvider;
 use Mirrorps\LaravelTaler\BankAccounts\BankAccountsManager;
 use Mirrorps\LaravelTaler\Config\ConfigManager;
@@ -10,6 +11,7 @@ use Mirrorps\LaravelTaler\Contracts\CreatesTalerClients;
 use Mirrorps\LaravelTaler\DonauCharity\DonauCharityManager;
 use Mirrorps\LaravelTaler\Instance\InstanceManager;
 use Mirrorps\LaravelTaler\Inventory\InventoryManager;
+use Mirrorps\LaravelTaler\Logging\LogChannelResolver;
 use Mirrorps\LaravelTaler\OtpDevices\OtpDevicesManager;
 use Mirrorps\LaravelTaler\Orders\OrdersManager;
 use Mirrorps\LaravelTaler\Templates\TemplatesManager;
@@ -23,10 +25,17 @@ class LaravelTalerServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/taler.php', 'taler');
 
+        $this->app->singleton(LogChannelResolver::class, function (Application $app): LogChannelResolver {
+            /** @var LogManager $logManager */
+            $logManager = $app->make('log');
+
+            return new LogChannelResolver($logManager, $app['config']);
+        });
+
         $this->app->singleton(CreatesTalerClients::class, function (Application $app): TalerClientFactory {
             return new TalerClientFactory(
                 $app['config'],
-                $app['log'],
+                $app->make(LogChannelResolver::class)->resolve(),
                 $app->bound(ClientInterface::class) ? $app->make(ClientInterface::class) : null,
             );
         });
