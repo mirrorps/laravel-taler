@@ -1,5 +1,4 @@
 # Laravel Taler
-> **Notice:** This package is under active development. File structure, APIs, and behavior may change at any time, and backward compatibility is not guaranteed until a stable release.
 
 
 ## Installation
@@ -850,13 +849,10 @@ $promise->wait();
 ```bash
 composer test
 ```
+---
 
-## Symfony Sandbox Verification Commands
+## Funding
 
-If you also use the Symfony sandbox app to validate the shared `mirrorps/taler-php` integration in a real environment, these commands are useful smoke tests:
+This project is funded through [NGI TALER Fund](https://nlnet.nl/taler), a fund established by [NLnet](https://nlnet.nl) with financial support from the European Commission's [Next Generation Internet](https://ngi.eu) program. Learn more at the [NLnet project page](https://nlnet.nl/project/TalerPHP).
 
-```bash
-php bin/console taler:config:get
-php bin/console taler:orders:list --limit=5
-php bin/console taler:instance:list
-```
+[<img src="https://nlnet.nl/logo/banner.png" alt="NLnet foundation logo" width="20%" />](https://nlnet.nl)
